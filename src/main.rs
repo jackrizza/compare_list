@@ -37,49 +37,50 @@ fn comparitor(vector_a: [usize; 3], vector_b: [usize; 3]) -> bool {
   return_bool
 }
 
-fn munge_matrix(new_gs: &mut General_structure, abc_array: &[[usize; 3]]) {
-  if new_gs.matrix.is_empty() {
-    new_gs.matrix.push(abc_array[new_gs.current as usize]);
-  } else if new_gs.matrix.len() == 1 {
-    if new_gs.x < new_gs.abc_array.len() as i32
-      && !comparitor(new_gs.matrix[0], new_gs.abc_array[new_gs.x as usize])
+fn munge_matrix(new_gs: &mut General_structure) {
+  match new_gs.matrix.len() {
+    0 => new_gs
+      .matrix
+      .push(new_gs.abc_array[new_gs.current as usize]),
+    1 if new_gs.x < new_gs.abc_array.len() as i32
+      && !comparitor(new_gs.matrix[0], new_gs.abc_array[new_gs.x as usize]) =>
     {
-      new_gs.matrix.push(new_gs.abc_array[new_gs.x as usize]);
+      new_gs.matrix.push(new_gs.abc_array[new_gs.x as usize])
     }
-  } else if new_gs.matrix.len() == 2 {
-    if new_gs.x < new_gs.abc_array.len() as i32
+    2 if new_gs.x < new_gs.abc_array.len() as i32
       && !comparitor(new_gs.matrix[0], new_gs.abc_array[new_gs.x as usize])
-      && !comparitor(new_gs.matrix[1], new_gs.abc_array[new_gs.x as usize])
+      && !comparitor(new_gs.matrix[1], new_gs.abc_array[new_gs.x as usize]) =>
     {
-      new_gs.matrix.push(new_gs.abc_array[new_gs.x as usize]);
+      new_gs.matrix.push(new_gs.abc_array[new_gs.x as usize])
     }
-  } else if new_gs.matrix.len() == 3 {
-    new_gs.x = 0;
-    new_gs.current += 1;
-    println!("{:?}", new_gs.matrix);
-    new_gs.matrix = Vec::new();
+    3 => {
+      new_gs.x = 0;
+      new_gs.current += 1;
+      println!("{:?}", new_gs.matrix);
+      new_gs.matrix.clear();
+    }
+    _ => (),
   }
 }
 
-fn recursive_matrix_builder(new_gs: &mut General_structure, abc_array: &[[usize; 3]]) {
+fn recursize_matrix_builder(new_gs: &mut General_structure) {
   new_gs.x += 1;
   new_gs.current += 1;
-
   if new_gs.current > (new_gs.abc_array.len() as i32) {
     return;
   }
-  munge_matrix(new_gs, abc_array);
-  recursive_matrix_builder(new_gs, abc_array);
+  munge_matrix(new_gs);
+  recursize_matrix_builder(new_gs);
 }
 
-fn matrix_builder(mut new_gs: General_structure, abc_array: &[[usize; 3]]) {
+fn matrix_builder(mut new_gs: General_structure) {
   loop {
     new_gs.x += 1;
     new_gs.current += 1;
     if new_gs.current > (new_gs.abc_array.len() as i32) {
       break;
     }
-    munge_matrix(&mut new_gs, &abc_array);
+    munge_matrix(&mut new_gs);
   }
 }
 
@@ -95,7 +96,7 @@ fn main() {
     matrix: Vec::new(),
     current: 0,
   };
-  matrix_builder(iter_gs, &abc_array);
+  matrix_builder(iter_gs);
   println!("\nRunning recursive version:");
   let mut recur_gs = General_structure {
     abc_array,
@@ -103,5 +104,5 @@ fn main() {
     matrix: Vec::new(),
     current: 0,
   };
-  recursive_matrix_builder(&mut recur_gs, &abc_array);
+  recursize_matrix_builder(&mut recur_gs);
 }
